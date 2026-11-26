@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>PetShop Amigo - Estoque e Vendas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🐾 PetShop Amigo - Gestão de Produtos</h1>
+        
+        <div class="form-box no-print">
+            <h3>Cadastrar Novo Produto</h3>
+            <input type="text" id="nome" placeholder="Ex: Ração Golden 10kg">
+            <input type="number" id="preco" placeholder="Preço (Ex: 120.50)">
+            <input type="number" id="quantidade" placeholder="Quantidade em estoque">
+            <button onclick="salvarProduto()">Salvar Produto</button>
+        </div>
+
+        <h3>Estoque Atual (Consulta & Relatório)</h3>
+        <button class="no-print btn-relatorio" onclick="window.print()">🖨️ Imprimir Relatório</button>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Produto</th>
+                    <th>Preço (R$)</th>
+                    <th>Estoque</th>
+                    <th class="no-print">Transação</th>
+                </tr>
+            </thead>
+            <tbody id="tabela-produtos"></tbody>
+        </table>
+        <h4 id="total-estoque"></h4>
+    </div>
+
+    <script>
+        if (sessionStorage.getItem('logado') !== 'sim') window.location.href = 'index.html';
+
+        async function carregarProdutos() {
+            const resp = await fetch('/api/produtos');
+            const lista = await resp.json();
+            const tbody = document.getElementById('tabela-produtos');
+            tbody.innerHTML = '';
+            let somaValor = 0;
+
+            lista.forEach(p => {
+                somaValor += (p.preco * p.quantidade);
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${p.id}</td>
+                        <td>${p.nome}</td>
+                        <td>R$ ${p.preco.toFixed(2)}</td>
+                        <td>${p.quantidade} un.</td>
+                        <td class="no-print">
+                            <button onclick="vender(${p.id})">Vender 1 un.</button>
+                        </td>
+                    </tr>`;
+            });
+            document.getElementById('total-estoque').innerText = 
+                `Valor Total em Estoque (Relatório): R$ ${somaValor.toFixed(2)}`;
+        }
+
+        async function salvarProduto() {
+            const nome = document.getElementById('nome').value;
+            const preco = parseFloat(document.getElementById('preco').value);
+            const quantidade = parseInt(document.getElementById('quantidade').value);
+            if (!nome || isNaN(preco) || isNaN(quantidade)) return alert('Preencha todos os campos!');
+
+            await fetch('/api/produtos', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({nome, preco, quantidade})
+            });
+            document.getElementById('nome').value = '';
+            document.getElementById('preco').value = '';
+            document.getElementById('quantidade').value = '';
+            carregarProdutos();
+        }
+
+        async function vender(id) {
+            await fetch(`/api/produtos/${id}/vender`, { method: 'PUT' });
+            carregarProdutos();
+        }
+
+        carregarProdutos();
+    </script>
+</body>
+</html>

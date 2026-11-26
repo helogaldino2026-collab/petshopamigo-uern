@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>PetShop Amigo - Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="caixa">
+        <h2>🐾 PetShop Amigo</h2>
+        <p>Acesso ao Sistema Corporativo</p>
+        <input type="text" id="usuario" placeholder="Usuário (admin)">
+        <input type="password" id="senha" placeholder="Senha (1234)">
+        <button onclick="fazerLogin()">Entrar</button>
+        <p id="msg" class="erro"></p>
+    </div>
+    <script>
+        async function fazerLogin() {
+            const usuario = document.getElementById('usuario').value;
+            const senha = document.getElementById('senha').value;
+            const resp = await fetch('/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({usuario, senha})
+            });
+            if (resp.ok) {
+                sessionStorage.setItem('logado', 'sim');
+                window.location.href = 'sistema.html';
+            } else {
+                document.getElementById('msg').innerText = 'Login incorreto! Use admin / 1234';
+            }
+        }
+    </script>
+</body>
+</html>
