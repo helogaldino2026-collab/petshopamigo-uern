@@ -29,6 +29,6 @@ O sistema foi estruturado seguindo o padrão arquitetural **Model-View-Controlle
 * IDE Eclipse com suporte a Maven
 
 ### Passo a passo
-1. No PostgreSQL (`psql` ou pgAdmin), crie o banco de dados vazio:
+1. No PostgreSQL (`psql` ou pgAdmin), crie o banco de dados inicial:
    ```sql
    CREATE DATABASE petshopamigo;
